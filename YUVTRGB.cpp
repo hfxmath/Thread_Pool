@@ -21,9 +21,6 @@ unsigned short V_B[256] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1
 ;
 
 #include "stdafx.h"
-#include "Y_table.h"
-#include "U_table.h"
-#include "V_table.h"
 #include <iostream>
 #include <memory>
 #include <time.h>
@@ -216,7 +213,38 @@ inline void  RGB2YUV(unsigned char *RgbBuf, unsigned char *yuvBuf, const int  nW
 	len = nWidth * nHeight + (nWidth * nHeight) / 2;
 	fwrite(yuvBuf, len, 1, des_file);
 }
- 
+ inline void rgbTyuv111(unsigned char *RGB, unsigned char *YUV, const int wid, const int higt)
+{
+	const int IMGSIZE = wid * higt;
+	unsigned char *bufY = YUV;
+	unsigned char *bufU = bufY + IMGSIZE;
+	unsigned char *bufV = bufU + (IMGSIZE >> 2);
+
+	/*for (int i = 0; i < IMGSIZE; i+=2)
+	{
+		int b = *(RGB++), g = *(RGB++), r = *(RGB++);
+		*(bufY++) = Y_R[r] + Y_G[g] + Y_B[b];
+
+		b = *(RGB++), g = *(RGB++), r = *(RGB++);
+		*(bufY++) = Y_R[r] + Y_G[g] + Y_B[b];
+	}*/
+	
+	for (int i = 0; i < higt; i ++)
+	{
+		for (int j = 0; j < wid; j ++)
+		{
+			int b = *(RGB++), g = *(RGB++), r = *(RGB++);
+			b = 90, g = 0, r = 0;
+			*(bufY++) = Y_R[r] + Y_G[g] + Y_B[b];
+			if (i % 2== 0 && j % 2==0)
+			{
+				*(bufU++) = U_B[b] - U_R[r] - U_G[g] + 128;
+				*(bufV++) = V_R[r] - V_G[g] - V_B[b] + 128;
+			}
+		}
+	}
+	//fwrite(YUV, wid * higt * 3 / 2, 1, des_file);
+}
 inline void rgbTyuv(unsigned char *RGB, unsigned char *YUV, const int wid, const int higt)
 {
 	const int IMGSIZE = wid * higt;
